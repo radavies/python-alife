@@ -6,23 +6,15 @@ import graphing.graph
 
 class Sim:
 
-    __creature_builder = None
-    __rand = None
-    __starting_pop = 0
-    __grid_size = 0
-    __turn_count = 0
-    __grid = None
-    __food = None
-    __graph = None
-
-    def __init__(self, starting_pop, grid_size):
+    def __init__(self, starting_pop, grid_size, mutation_rate):
         self.__starting_pop = starting_pop
         self.__grid_size = grid_size
         self.__grid = [[[] for x in range(self.__grid_size)] for y in range(self.__grid_size)]
         self.__food = [[False for x in range(self.__grid_size)] for y in range(self.__grid_size)]
         self.__rand = random.Random()
-        self.__creature_builder = creatures.builder.Builder()
+        self.__creature_builder = creatures.builder.Builder(mutation_rate)
         self.__graph = graphing.graph.Graph()
+        self.__turn_count = 0
 
     def start(self):
         self.__place_creatures()
@@ -92,7 +84,7 @@ class Sim:
         for x in range(self.__grid_size):
             for y in range(self.__grid_size):
                 if len(self.__grid[x][y]) > 0:
-                    # TODO: order by speed
+                    self.__grid[x][y].sort()
                     for creature in self.__grid[x][y]:
                         if self.__food[x][y]:
                             self.__food[x][y] = False
@@ -102,6 +94,9 @@ class Sim:
         total_creatures = 0
         creatures_died = 0
         creatures_born = 0
+        max_speed = -1000
+        min_speed = 1000
+        average_speed = 0
 
         for x in range(self.__grid_size):
             for y in range(self.__grid_size):
@@ -109,14 +104,19 @@ class Sim:
                     new_creatures = []
                     for creature in self.__grid[x][y]:
                         total_creatures += 1
-                        if creature.get_food_this_turn() < 1:
+                        if creature.get_speed() < min_speed:
+                            min_speed = creature.get_speed()
+                        if creature.get_speed() > max_speed:
+                            max_speed = creature.get_speed()
+                        average_speed += creature.get_speed()
+                        if creature.read_food_this_turn() < 1:
                             self.__grid[x][y].remove(creature)
                             creatures_died += 1
-                        elif creature.get_food_this_turn() > 1:
-                            new_creatures.append(self.__creature_builder.build())
+                        elif creature.read_food_this_turn() > 1:
+                            new_creatures.append(self.__creature_builder.build_offspring(creature))
                     for new_creature in new_creatures:
                         creatures_born += 1
                         self.__grid[x][y].append(new_creature)
-
-        self.__graph.update_stats(total_creatures, creatures_born, creatures_died)
+        average_speed = average_speed / total_creatures
+        self.__graph.update_stats(total_creatures, creatures_born, creatures_died, min_speed, average_speed, max_speed)
         return total_creatures + creatures_born > 0

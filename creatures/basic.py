@@ -3,13 +3,23 @@ import random
 
 class Basic:
 
-    random = None
-    __food_this_turn = 0
-    __speed = 8
-    __moves = 0
-
-    def __init__(self):
+    def __init__(self, creature):
+        self.__food_this_turn = 0
+        self.__speed = 8 if creature is None else creature.get_speed()
+        self.__moves = 0
         self.__rand = random.Random()
+
+    def __lt__(self, other):
+        return self.__speed < other.__speed
+
+    def mutate(self):
+        if self.__rand.randint(0, 1) > 0:
+            self.__speed += 1
+        else:
+            self.__speed -= 1
+
+    def get_speed(self):
+        return self.__speed
 
     def has_moves_left(self):
         return self.__moves > 0
@@ -20,7 +30,7 @@ class Basic:
     def take_move(self):
         self.__moves -= 1
 
-    def get_food_this_turn(self):
+    def read_food_this_turn(self):
         return self.__food_this_turn
 
     def update_food_this_turn(self, update_by):

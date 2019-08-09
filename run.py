@@ -3,7 +3,7 @@ import sim
 
 def run():
 
-    simulation = sim.Sim(40, 20)
+    simulation = sim.Sim(starting_pop=40, grid_size=20, mutation_rate=10)
     simulation.start()
 
 
