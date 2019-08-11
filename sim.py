@@ -39,9 +39,11 @@ class Sim:
             go = self.__step()
             self.__turn_count += 1
             print(self.__turn_count)
+            if self.__turn_count % 10 is 0:
+                self.__graph.render_map_graph(self.__grid, self.__turn_count)
             if self.__turn_count >= 1000:
                 go = False
-        self.__graph.render_graph()
+        self.__graph.render_pop_graph()
 
     def __step(self):
         self.__reset_creatures()
@@ -74,8 +76,7 @@ class Sim:
                         new_y = y
                         if creature.has_moves_left():
                             something_moved = True
-                            new_x, new_y = creature.move_toward_food(self.__food, x, y, self.__grid_size)
-                            creature.take_move()
+                            new_x, new_y = creature.take_move(self.__grid, self.__food, x, y, self.__grid_size)
                         self.__new_grid[new_x][new_y].append(creature)
         self.__grid = self.__new_grid
         return something_moved
@@ -91,6 +92,8 @@ class Sim:
                             creature.update_food_this_turn(1)
 
     def __evaluate_grid(self):
+        # TODO: Break this method into evaluate and doing the changes
+        # TODO: Make the offspring bit better
         total_creatures = 0
         creatures_died = 0
         creatures_born = 0
@@ -112,11 +115,16 @@ class Sim:
                         if creature.read_food_this_turn() < 1:
                             self.__grid[x][y].remove(creature)
                             creatures_died += 1
-                        elif creature.read_food_this_turn() > 1:
+                        elif creature.read_food_this_turn() > 1 and len(self.__grid[x][y]) > 1:
                             new_creatures.append(self.__creature_builder.build_offspring(creature))
                     for new_creature in new_creatures:
                         creatures_born += 1
                         self.__grid[x][y].append(new_creature)
-        average_speed = average_speed / total_creatures
+
+        if total_creatures > 0:
+            average_speed = average_speed / total_creatures
+        else:
+            average_speed = min_speed = max_speed = 0
+
         self.__graph.update_stats(total_creatures, creatures_born, creatures_died, min_speed, average_speed, max_speed)
-        return total_creatures + creatures_born > 0
+        return total_creatures + creatures_born > 1

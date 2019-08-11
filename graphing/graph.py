@@ -19,12 +19,12 @@ class Graph:
         self.__average_speed_log.append(average_speed)
         self.__max_speed_log.append(max_speed)
 
-    def render_graph(self):
+    def render_pop_graph(self):
         fig = go.Figure(
             layout_title_text="Creatures"
         )
 
-        fig.add_trace(go.Bar(
+        fig.add_trace(go.Scatter(
             y=self.__total_creatures_log,
             name="Total Creatures"
         ))
@@ -39,7 +39,6 @@ class Graph:
             name="Creatures Born"
         ))
 
-        # TODO: Make these a candle stick type thing
         fig.add_trace(go.Scatter(
             y=self.__min_speed_log,
             name="Min Speed"
@@ -68,3 +67,19 @@ class Graph:
             )
         )
         fig.show()
+
+    def render_map_graph(self, grid, step_count):
+        usable_grid = self.__convert_sim_grid_for_graphing(grid)
+        fig = go.Figure(
+            layout_title_text="Map"
+        )
+        fig.add_trace(go.Heatmap(z=usable_grid))
+        fig.write_image("map{}.jpg".format(step_count))
+
+    def __convert_sim_grid_for_graphing(self, grid):
+        grid_size = len(grid)
+        new_grid = [[0 for x in range(grid_size)] for y in range(grid_size)]
+        for x in range(grid_size):
+            for y in range(grid_size):
+                new_grid[x][y] = len(grid[x][y])
+        return new_grid

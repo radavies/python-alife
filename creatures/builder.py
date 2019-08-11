@@ -9,7 +9,10 @@ class Builder:
         self.__rand = random.Random()
 
     def build(self):
-        return basic_creature.Basic(None)
+        new = basic_creature.Basic(None)
+        if self.__rand.randint(1, 100) <= self.__mutation_rate:
+            new.mutate()
+        return new
 
     def build_offspring(self, creature):
         new = basic_creature.Basic(creature)
