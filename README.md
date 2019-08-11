@@ -5,6 +5,7 @@ Currently implementing some ideas from the Primer YouTube channel's videos (http
 
 Runs the simulation and then graphs the results using Plotly. Might do some real time graphs later.
 
-![alt text](https://raw.githubusercontent.com/radavies/python-alife/master/ui/example.PNG "Graph example")
+![alt text](https://raw.githubusercontent.com/radavies/python-alife/master/ui/example.PNG "Population graph example")
+![alt text](https://raw.githubusercontent.com/radavies/python-alife/master/ui/map-example.jpg "Population density example")
 
 Note: You need to install https://github.com/plotly/orca before running.
